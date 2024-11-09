@@ -22,3 +22,5 @@ const PORT = process.env.PORT || 3000;
     console.error('Database connection error:', error);
   }
 })();
+
+export default app;

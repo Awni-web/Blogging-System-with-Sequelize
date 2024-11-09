@@ -22,7 +22,7 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
       await post.$set('categories', categories);
     }
 
-    return res.status(201).json(post);
+    res.status(201).json(post);
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -37,10 +37,10 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
     });
 
     if (!post) {
-      return next(createError(404, 'Post not found'));
+      next(createError(404, 'Post not found'));
     }
 
-    return res.status(200).json(post);
+    res.status(200).json(post);
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -53,14 +53,14 @@ export const getAllPosts = async (req: Request, res: Response, next: NextFunctio
       include: [User, { model: Category }, { model: Comment, include: [User] }]
     });
 
-    return res.status(200).json(posts);
+    res.status(200).json(posts);
   } catch (error: any) {
     next(createError(500, error.message));
   }
 };
 
 // Update a post by ID
-export const updatePost = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { postId } = req.params;
     const { title, content, categoryIds } = req.body;
@@ -79,7 +79,7 @@ export const updatePost = async (req: Request, res: Response, next: NextFunction
       await post.$set('categories', categories);
     }
 
-    return res.status(200).json(post);
+    res.status(200).json(post);
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -96,7 +96,7 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
     }
 
     await post.destroy();
-    return res.status(204).send();
+    res.status(204).send();
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -106,17 +106,17 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
 export const addCategoryToPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { postId } = req.params;
-    const { categoryId } = req.body;
+    const { name } = req.body;
 
     const post = await Post.findByPk(postId);
-    const category = await Category.findByPk(categoryId);
+    const category = await Category.create(req.body)
 
-    if (!post || !category) {
-      return next(createError(404, 'Post or Category not found'));
+    if (!post) {
+      return next(createError(404, 'Post not found'));
     }
 
     await post.$add('category', category);
-    return res.status(200).json({ message: 'Category added to post' });
+    res.status(200).json({ message: 'Category added to post' });
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -132,7 +132,7 @@ export const getCategoriesForPost = async (req: Request, res: Response, next: Ne
       return next(createError(404, 'Post not found'));
     }
 
-    return res.status(200).json(post.categories);
+    res.status(200).json(post.categories);
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -148,11 +148,11 @@ export const addCommentToPost = async (req: Request, res: Response, next: NextFu
     const user = await User.findByPk(userId);
 
     if (!post || !user) {
-      return next(createError(404, 'Post or User not found'));
+      next(createError(404, 'Post or User not found'));
     }
 
     const comment = await Comment.create(req.body);
-    return res.status(201).json(comment);
+    res.status(201).json(comment);
   } catch (error: any) {
     next(createError(500, error.message));
   }
@@ -168,7 +168,7 @@ export const getCommentsForPost = async (req: Request, res: Response, next: Next
       return next(createError(404, 'Post not found'));
     }
 
-    return res.status(200).json(post.comments);
+    res.status(200).json(post.comments);
   } catch (error: any) {
     next(createError(500, error.message));
   }

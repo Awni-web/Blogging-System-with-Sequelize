@@ -1,0 +1,30 @@
+name: Baseline Check
+
+# Triggered on pull requests for each push (commit).
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main # Adjust to your main branch if it's named differently.
+
+jobs:
+  baseline-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3 # Updated to v3 for the latest version.
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3 # Updated to v3 for the latest version.
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run baseline tests
+        run: test
